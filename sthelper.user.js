@@ -1,14 +1,15 @@
 // ==UserScript==
 // @name         STHelper
 // @namespace    http://tampermonkey.net/
-// @version      0.0.3-dev
+// @version      0.0.4
 // @description  Testing
 // @author       Pocket Deer
 // @match        https://*steam-trader.com*
 // @include      https://*steam-trader.com*
 // @updateURL    https://raw.githubusercontent.com/Pocket-Deer/STHelper/dev/sthelper.user.js
 // @downloadURL  https://raw.githubusercontent.com/Pocket-Deer/STHelper/dev/sthelper.user.js
-// @grant        none
+// @grant        GM_getValue
+// @grant        GM_setValue
 // ==/UserScript==
 
 (function() {
