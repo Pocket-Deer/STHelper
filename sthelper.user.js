@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         STHelper
 // @namespace    http://tampermonkey.net/
-// @version      0.0.1
+// @version      0.0.2
 // @description  Testing
 // @author       Pocket Deer
 // @match        https://*steam-trader.com*
