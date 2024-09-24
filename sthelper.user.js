@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         STHelper
 // @namespace    http://tampermonkey.net/
-// @version      0.0.4
+// @version      0.0.5
 // @description  Testing
 // @author       Pocket Deer
 // @match        https://*steam-trader.com*
@@ -26,7 +26,7 @@
     settingsButton.style.zIndex = '9999';
     document.body.appendChild(settingsButton);
 
-    // Панель настроек (с флажками)
+    // Панель настроек (с кнопками)
     const settingsPanel = document.createElement('div');
     settingsPanel.style.position = 'fixed';
     settingsPanel.style.top = '50px';
@@ -40,22 +40,66 @@
     settingsPanel.style.display = 'none'; // Скрыта по умолчанию
     document.body.appendChild(settingsPanel);
 
-    // Создаем флажок для настройки
-    const helloWorldCheckbox = document.createElement('input');
-    helloWorldCheckbox.type = 'checkbox';
-    helloWorldCheckbox.id = 'helloWorldCheckbox';
-    helloWorldCheckbox.checked = GM_getValue('helloWorldEnabled', true); // Читаем состояние флажка из настроек
-    const helloWorldLabel = document.createElement('label');
-    helloWorldLabel.htmlFor = 'helloWorldCheckbox';
-    helloWorldLabel.innerText = ' Включить "Привет мир"';
+    // Функция для создания кнопки с изменяемым фоном
+    function createToggleButton(settingKey, buttonText) {
+        const button = document.createElement('button');
+        button.innerText = buttonText;
+        button.style.margin = '5px';
+        button.style.padding = '10px';
+        button.style.border = 'none';
+        button.style.borderRadius = '5px';
+        button.style.cursor = 'pointer';
+        button.style.color = 'white';
 
-    // Добавляем флажок на панель настроек
-    settingsPanel.appendChild(helloWorldCheckbox);
-    settingsPanel.appendChild(helloWorldLabel);
+        // Обновляем цвет кнопки в зависимости от состояния настройки
+        function updateButtonColor() {
+            if (GM_getValue(settingKey, false)) {
+                button.style.backgroundColor = 'green'; // Включено
+            } else {
+                button.style.backgroundColor = 'red'; // Выключено
+            }
+        }
 
-    // Показать или скрыть панель настроек при нажатии на кнопку
+        // Изменяем состояние настройки при клике на кнопку
+        button.addEventListener('click', () => {
+            const newValue = !GM_getValue(settingKey, false);
+            GM_setValue(settingKey, newValue);
+            updateButtonColor();
+            if (settingKey === 'helloWorldEnabled') {
+                if (newValue) {
+                    console.log('Привет мир');
+                } else {
+                    console.log('Привет мир отключён');
+                }
+            }
+        });
+
+        // Инициализируем цвет кнопки
+        updateButtonColor();
+
+        return button;
+    }
+
+    // Добавляем кнопки для настроек
+    const helloWorldButton = createToggleButton('helloWorldEnabled', 'Включить/Выключить "Привет мир"');
+    const changeBgButton = createToggleButton('changeBackground', 'Изменить цвет фона');
+
+    // Изменяем цвет фона страницы, если активна настройка
+    function updateBackgroundColor() {
+        if (GM_getValue('changeBackground', false)) {
+            document.body.style.backgroundColor = 'lightblue'; // Фон изменен на голубой
+        } else {
+            document.body.style.backgroundColor = ''; // Возвращаем стандартный цвет
+        }
+    }
+
+    // Добавляем кнопку на панель настроек
+    settingsPanel.appendChild(helloWorldButton);
+    settingsPanel.appendChild(changeBgButton);
+
+    // Показать или скрыть панель настроек при нажатии на шестерёнку
     settingsButton.addEventListener('click', (e) => {
-        e.stopPropagation(); // Останавливаем всплытие события, чтобы не закрыть окно сразу
+        e.stopPropagation(); // Останавливаем всплытие события
         settingsPanel.style.display = settingsPanel.style.display === 'none' ? 'block' : 'none';
     });
 
@@ -66,13 +110,9 @@
         }
     });
 
-    // Сохраняем настройку при изменении флажка
-    helloWorldCheckbox.addEventListener('change', () => {
-        GM_setValue('helloWorldEnabled', helloWorldCheckbox.checked);
-    });
+    // Проверяем настройку изменения фона при загрузке страницы
+    updateBackgroundColor();
 
-    // Проверяем настройку и выводим сообщение в консоль
-    if (GM_getValue('helloWorldEnabled', true)) {
-        console.log('Привет мир');
-    }
+    // Отслеживаем изменения настроек и обновляем цвет фона
+    changeBgButton.addEventListener('click', updateBackgroundColor);
 })();
