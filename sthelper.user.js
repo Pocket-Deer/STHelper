@@ -26,7 +26,7 @@
     settingsButton.style.zIndex = '9999';
     document.body.appendChild(settingsButton);
 
-    // Панель настроек (с кнопками)
+    // Панель настроек
     const settingsPanel = document.createElement('div');
     settingsPanel.style.position = 'fixed';
     settingsPanel.style.top = '50px';
@@ -38,18 +38,39 @@
     settingsPanel.style.borderRadius = '5px';
     settingsPanel.style.zIndex = '9999';
     settingsPanel.style.display = 'none'; // Скрыта по умолчанию
+    settingsPanel.style.width = '200px'; // Задаём фиксированную ширину
+    settingsPanel.style.display = 'none';
     document.body.appendChild(settingsPanel);
+
+    // Создаем стили для плавной анимации и кнопок
+    GM_addStyle(`
+        .toggle-button {
+            margin: 5px;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            color: white;
+            width: 100%;
+            transition: background-color 0.3s ease; /* Анимация плавного изменения цвета */
+        }
+        .settings-section {
+            margin-bottom: 20px;
+        }
+        .settings-section-title {
+            margin-bottom: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: lightgray;
+        }
+    `);
 
     // Функция для создания кнопки с изменяемым фоном
     function createToggleButton(settingKey, buttonText) {
         const button = document.createElement('button');
+        button.className = 'toggle-button';
         button.innerText = buttonText;
-        button.style.margin = '5px';
-        button.style.padding = '10px';
-        button.style.border = 'none';
-        button.style.borderRadius = '5px';
-        button.style.cursor = 'pointer';
-        button.style.color = 'white';
 
         // Обновляем цвет кнопки в зависимости от состояния настройки
         function updateButtonColor() {
@@ -80,22 +101,35 @@
         return button;
     }
 
-    // Добавляем кнопки для настроек
+    // Создаём разделы для группировки кнопок
+    function createSettingsSection(title) {
+        const section = document.createElement('div');
+        section.className = 'settings-section';
+
+        const sectionTitle = document.createElement('div');
+        sectionTitle.className = 'settings-section-title';
+        sectionTitle.innerText = title;
+
+        section.appendChild(sectionTitle);
+
+        return section;
+    }
+
+    // Разделы настроек
+    const mainSettings = createSettingsSection('Основное');
+    const testSettings = createSettingsSection('Тестовое');
+
+    // Кнопки для разделов
     const helloWorldButton = createToggleButton('helloWorldEnabled', 'Включить/Выключить "Привет мир"');
     const changeBgButton = createToggleButton('changeBackground', 'Изменить цвет фона');
 
-    // Изменяем цвет фона страницы, если активна настройка
-    function updateBackgroundColor() {
-        if (GM_getValue('changeBackground', false)) {
-            document.body.style.backgroundColor = 'lightblue'; // Фон изменен на голубой
-        } else {
-            document.body.style.backgroundColor = ''; // Возвращаем стандартный цвет
-        }
-    }
+    // Добавляем кнопки в соответствующие разделы
+    mainSettings.appendChild(helloWorldButton);
+    testSettings.appendChild(changeBgButton);
 
-    // Добавляем кнопку на панель настроек
-    settingsPanel.appendChild(helloWorldButton);
-    settingsPanel.appendChild(changeBgButton);
+    // Добавляем разделы на панель настроек
+    settingsPanel.appendChild(mainSettings);
+    settingsPanel.appendChild(testSettings);
 
     // Показать или скрыть панель настроек при нажатии на шестерёнку
     settingsButton.addEventListener('click', (e) => {
@@ -110,9 +144,18 @@
         }
     });
 
-    // Проверяем настройку изменения фона при загрузке страницы
+    // Изменение фона страницы в зависимости от состояния настройки
+    function updateBackgroundColor() {
+        if (GM_getValue('changeBackground', false)) {
+            //document.body.style.backgroundColor = 'lightblue'; // Голубой фон
+        } else {
+            //document.body.style.backgroundColor = ''; // Стандартный фон
+        }
+    }
+
+    // Инициализация фона при загрузке страницы
     updateBackgroundColor();
 
-    // Отслеживаем изменения настроек и обновляем цвет фона
+    // Обновляем цвет фона при изменении состояния кнопки
     changeBgButton.addEventListener('click', updateBackgroundColor);
 })();
